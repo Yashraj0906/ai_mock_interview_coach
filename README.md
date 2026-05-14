@@ -224,8 +224,4 @@ Opens at [http://localhost:8501](http://localhost:8501)
 | **UI** | Streamlit |
 | **Structured Output** | Pydantic v2 |
 
----
 
-## 📄 License
-
-This project was built as a capstone project for UpGrad's AI/ML program.
