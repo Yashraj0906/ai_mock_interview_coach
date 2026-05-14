@@ -11,7 +11,8 @@ from agents.planner import planner_node
 from agents.interviewer import interviewer_node
 from agents.evaluator import evaluator_node
 from agents.coach import coach_node
-
+import warnings
+warnings.filterwarnings("ignore", module="transformers")
 
 # ─── State Definition ───────────────────────────────────────────
 class AgentState(TypedDict):
@@ -82,11 +83,16 @@ def build_graph() -> StateGraph:
         {"interviewer": "interviewer", "coach": "coach"},
     )
     graph.add_edge("coach", END)  # Coach ends the session
-
+    with open("graph.mmd", "w") as f:
+        f.write(graph.get_graph().draw_mermaid())
     return graph
 
 
 def compile_graph():
     """Compile the graph for execution. Returns a runnable."""
     graph = build_graph()
-    return graph.compile()
+    app = graph.compile()
+
+    with open("graph.mmd", "w") as f:
+        f.write(app.get_graph().draw_mermaid())
+    return app

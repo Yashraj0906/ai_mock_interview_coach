@@ -11,7 +11,7 @@ from rag.retriever import get_rubric
 
 
 # Model: 8B for speed — structured JSON output only
-EVALUATOR_MODEL = "llama-3.1-8b-instant"
+EVALUATOR_MODEL = "llama-3.3-70b-versatile"
 
 
 class EvaluationResult(BaseModel):

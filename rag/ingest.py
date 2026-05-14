@@ -16,10 +16,10 @@ from sentence_transformers import SentenceTransformer
 # --- Configuration ---
 KNOWLEDGE_BASE_DIR = Path(__file__).parent.parent / "knowledge_base"
 CHROMA_DB_DIR = Path(__file__).parent.parent / "chroma_db"
-EMBEDDING_MODEL = "all-MiniLM-L12-v2"
+EMBEDDING_MODEL = "BAAI/bge-m3"
 COLLECTION_NAME = "interview_knowledge"
-CHUNK_SIZE = 400  # tokens (approximate via words * 1.3)
-CHUNK_OVERLAP = 50
+CHUNK_SIZE = 500  # tokens (approximate via words * 1.3)
+CHUNK_OVERLAP = 80
 
 
 # --- Metadata mapping ---

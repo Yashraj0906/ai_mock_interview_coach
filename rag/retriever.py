@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 
 # --- Configuration ---
 CHROMA_DB_DIR = Path(__file__).parent.parent / "chroma_db"
-EMBEDDING_MODEL = "all-MiniLM-L12-v2"
+EMBEDDING_MODEL = "BAAI/bge-m3"
 COLLECTION_NAME = "interview_knowledge"
 
 # Lazy-loaded singletons
