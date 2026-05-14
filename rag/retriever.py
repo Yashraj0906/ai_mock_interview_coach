@@ -1,5 +1,18 @@
 """RAG Retriever — provides retrieval functions used by all agents."""
 
+import warnings
+import os
+import logging
+
+# Suppress transformers warnings before import
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", module="transformers")
+os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+logging.getLogger("transformers").setLevel(logging.ERROR)
+logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+
 from pathlib import Path
 
 import chromadb

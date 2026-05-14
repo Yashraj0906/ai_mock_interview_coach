@@ -1,0 +1,25 @@
+graph TD
+    START(["🚀 START"]) --> PLANNER["📋 Session Planner<br/><i>LLM: llama-3.3-70b</i>"]
+    PLANNER -->|"Interview Plan JSON"| INTERVIEWER["🎤 Interviewer Agent<br/><i>LLM: llama-3.3-70b</i>"]
+    INTERVIEWER -->|"Question"| USER["👤 Candidate Input<br/><i>Streamlit Chat UI</i>"]
+    USER -->|"Answer"| EVALUATOR["📊 Evaluator Agent<br/><i>LLM: llama-3.3-70b</i>"]
+    EVALUATOR -->|"turn_count < max"| INTERVIEWER
+    EVALUATOR -->|"turn_count >= max"| COACH["🏆 Coach Agent<br/><i>LLM: llama-3.3-70b</i>"]
+    COACH --> END(["✅ END"])
+
+    %% RAG connections
+    RAG[("🗄️ ChromaDB<br/>RAG Knowledge Base")]
+    RAG -.->|"Frameworks"| PLANNER
+    RAG -.->|"Question Patterns"| INTERVIEWER
+    RAG -.->|"Scoring Rubrics"| EVALUATOR
+
+    %% Styling
+    classDef startEnd fill:#06B6D4,color:#fff,stroke:#0891B2,stroke-width:2px
+    classDef agent fill:#8B5CF6,color:#fff,stroke:#7C3AED,stroke-width:2px
+    classDef user fill:#F59E0B,color:#fff,stroke:#D97706,stroke-width:2px
+    classDef rag fill:#10B981,color:#fff,stroke:#059669,stroke-width:2px
+
+    class START,END startEnd
+    class PLANNER,INTERVIEWER,EVALUATOR,COACH agent
+    class USER user
+    class RAG rag

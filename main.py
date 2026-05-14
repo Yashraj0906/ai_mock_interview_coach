@@ -3,6 +3,22 @@
 Run with:  streamlit run main.py
 """
 
+# ─── Suppress noisy library warnings BEFORE any imports ────────
+import warnings
+import os
+import logging
+
+# Silence transformers __path__ deprecation warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", module="transformers")
+
+# Suppress transformers & sentence_transformers log noise
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+logging.getLogger("transformers").setLevel(logging.ERROR)
+logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
+
 import sys
 from pathlib import Path
 
@@ -21,9 +37,12 @@ from agents.coach import coach_node
 
 load_dotenv()
 
+# ─── Constants ──────────────────────────────────────────────────
+LOGO_PATH = Path(__file__).parent / "logo.jpg"
+
 # ─── Page Configuration ─────────────────────────────────────────
 st.set_page_config(
-    page_title="AI Mock Interview Coach",
+    page_title="UpGrad Interview Assessment",
     page_icon="🎯",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -32,28 +51,94 @@ st.set_page_config(
 # ─── Custom Styling ─────────────────────────────────────────────
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
     .stApp {
-        max-width: 800px;
+        max-width: 840px;
         margin: 0 auto;
+        font-family: 'Inter', sans-serif;
     }
-    .main-title {
+
+    /* ── Header ── */
+    .logo-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.9rem;
+        margin-bottom: 0.2rem;
+    }
+    .logo-row img {
+        height: 48px;
+        border-radius: 6px;
+    }
+    .brand-title {
         text-align: center;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #06B6D4 0%, #8B5CF6 50%, #EC4899 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+        margin: 0;
     }
-    .subtitle {
+    .brand-sub {
         text-align: center;
-        color: #6b7280;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
+        color: #94a3b8;
+        font-size: 1rem;
+        margin-top: 0.1rem;
+        margin-bottom: 1.8rem;
     }
+
+    /* ── Form card ── */
+    div[data-testid="stForm"] {
+        background: linear-gradient(135deg, rgba(6,182,212,0.04) 0%, rgba(139,92,246,0.06) 100%);
+        border: 1px solid rgba(139,92,246,0.18);
+        border-radius: 14px;
+        padding: 1.5rem;
+    }
+
+    /* ── Expander ── */
     div[data-testid="stExpander"] {
-        border: 2px solid #667eea;
-        border-radius: 10px;
+        border: 1px solid rgba(139,92,246,0.25);
+        border-radius: 12px;
+    }
+
+    /* ── Submit button ── */
+    .stFormSubmitButton > button {
+        background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%) !important;
+        color: white !important;
+        font-weight: 700 !important;
+        font-size: 1.05rem !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 0.65rem 1.5rem !important;
+        transition: all 0.3s ease !important;
+    }
+    .stFormSubmitButton > button:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 20px rgba(139,92,246,0.3) !important;
+    }
+
+    /* ── Metric cards ── */
+    div[data-testid="stMetric"] {
+        background: rgba(139,92,246,0.05);
+        border: 1px solid rgba(139,92,246,0.15);
+        border-radius: 12px;
+        padding: 0.7rem;
+    }
+
+    /* ── Dividers ── */
+    hr {
+        border-color: rgba(139,92,246,0.12) !important;
+    }
+
+    /* ── Footer ── */
+    .app-footer {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.78rem;
+        margin-top: 2rem;
+        padding-bottom: 1rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -72,9 +157,18 @@ if "phase" not in st.session_state:
 # PHASE 1: INTAKE FORM
 # ═══════════════════════════════════════════════════════════════
 if st.session_state.phase == "intake":
-    st.markdown('<p class="main-title">🎯 AI Mock Interview Coach</p>', unsafe_allow_html=True)
+    # ── Logo + Title ──
+    if LOGO_PATH.exists():
+        col1, col2, col3 = st.columns([2, 1, 2])
+        with col2:
+            st.image(str(LOGO_PATH), width="stretch")
+
     st.markdown(
-        '<p class="subtitle">Practice for any role. Get real feedback. Improve faster.</p>',
+        '<p class="brand-title">Interview Assessment</p>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<p class="brand-sub">AI-Powered Mock Interview Coach · Practice any role · Get real feedback</p>',
         unsafe_allow_html=True,
     )
 
@@ -263,3 +357,9 @@ elif st.session_state.phase == "completed":
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
+
+    # Footer
+    st.markdown(
+        '<p class="app-footer">Built with LangGraph · Groq · ChromaDB — UpGrad Capstone Project</p>',
+        unsafe_allow_html=True,
+    )

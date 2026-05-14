@@ -227,14 +227,21 @@ Get free key: https://console.groq.com/keys
 ```powershell
 python -m rag.ingest
 ```
+This only needs to run **once**. A marker file (`.ingest_done`) is created inside `chroma_db/` to prevent accidental re-ingestion.
+
 Expected output:
 ```
-[*] Loading embedding model: all-MiniLM-L12-v2...
+[*] Loading embedding model: BAAI/bge-m3...
 [+] Processing: frameworks/star_method.md
 [+] Processing: question_patterns/behavioral_patterns.md
 ... (14 files total)
 [*] Embedding 31 chunks...
 [OK] Ingestion complete! 31 chunks stored in 'interview_knowledge'
+```
+
+If you update the knowledge base and need to re-ingest:
+```powershell
+python -m rag.ingest --force
 ```
 
 ### Step 7: Launch the app

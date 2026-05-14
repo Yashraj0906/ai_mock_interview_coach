@@ -11,8 +11,6 @@ from agents.planner import planner_node
 from agents.interviewer import interviewer_node
 from agents.evaluator import evaluator_node
 from agents.coach import coach_node
-import warnings
-warnings.filterwarnings("ignore", module="transformers")
 
 # ─── State Definition ───────────────────────────────────────────
 class AgentState(TypedDict):
@@ -83,8 +81,6 @@ def build_graph() -> StateGraph:
         {"interviewer": "interviewer", "coach": "coach"},
     )
     graph.add_edge("coach", END)  # Coach ends the session
-    with open("graph.mmd", "w") as f:
-        f.write(graph.get_graph().draw_mermaid())
     return graph
 
 
@@ -92,7 +88,34 @@ def compile_graph():
     """Compile the graph for execution. Returns a runnable."""
     graph = build_graph()
     app = graph.compile()
-
-    with open("graph.mmd", "w") as f:
-        f.write(app.get_graph().draw_mermaid())
     return app
+
+
+def get_mermaid_diagram() -> str:
+    """Return the Mermaid diagram string for the agent workflow.
+
+    Also saves it to graph.mmd for use in README / documentation.
+    """
+    app = compile_graph()
+    mermaid = app.get_graph().draw_mermaid()
+
+    # Save to file for README usage
+    from pathlib import Path
+    mmd_path = Path(__file__).parent / "graph.mmd"
+    mmd_path.write_text(mermaid, encoding="utf-8")
+
+    return mermaid
+
+
+if __name__ == "__main__":
+    """Run this file directly to generate graph.mmd:
+        python graph.py
+    """
+    diagram = get_mermaid_diagram()
+    print("[OK] Generated graph.mmd")
+    print()
+    print("Copy this into your README inside a ```mermaid block:")
+    print("-" * 50)
+    print(diagram)
+    print("-" * 50)
+

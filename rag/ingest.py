@@ -2,9 +2,26 @@
 
 Run this ONCE before starting the app:
     python -m rag.ingest
+
+To force a fresh re-ingestion:
+    python -m rag.ingest --force
 """
 
+# ─── Suppress noisy library warnings ──────────────────────────
+import warnings
+import os as _os
+import logging as _logging
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", module="transformers")
+_os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+_os.environ["TOKENIZERS_PARALLELISM"] = "false"
+_logging.getLogger("transformers").setLevel(_logging.ERROR)
+_logging.getLogger("sentence_transformers").setLevel(_logging.ERROR)
+
 import os
+import sys
 import hashlib
 from pathlib import Path
 
@@ -20,6 +37,9 @@ EMBEDDING_MODEL = "BAAI/bge-m3"
 COLLECTION_NAME = "interview_knowledge"
 CHUNK_SIZE = 500  # tokens (approximate via words * 1.3)
 CHUNK_OVERLAP = 80
+
+# Marker file to track whether ingestion has already been completed
+INGEST_MARKER = CHROMA_DB_DIR / ".ingest_done"
 
 
 # --- Metadata mapping ---
@@ -83,8 +103,22 @@ def _chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OV
     return chunks
 
 
-def ingest():
-    """Load all knowledge base documents into ChromaDB."""
+def is_ingested() -> bool:
+    """Check if ingestion has already been completed."""
+    return INGEST_MARKER.exists()
+
+
+def ingest(force: bool = False):
+    """Load all knowledge base documents into ChromaDB.
+
+    Args:
+        force: If True, re-ingest even if already done.
+    """
+    if not force and is_ingested():
+        print("[OK] Knowledge base already ingested. Skipping.")
+        print("     Use --force to re-ingest: python -m rag.ingest --force")
+        return
+
     print(f"[*] Loading embedding model: {EMBEDDING_MODEL}...")
     model = SentenceTransformer(EMBEDDING_MODEL)
 
@@ -157,10 +191,18 @@ def ingest():
             embeddings=all_embeddings[i:end],
         )
 
+    # Write marker file so we don't re-ingest next time
+    CHROMA_DB_DIR.mkdir(parents=True, exist_ok=True)
+    INGEST_MARKER.write_text(
+        f"Ingested {len(all_docs)} chunks from {KNOWLEDGE_BASE_DIR}\n"
+    )
+
     print(f"\n[OK] Ingestion complete! {len(all_docs)} chunks stored in '{COLLECTION_NAME}'")
     print(f"   Categories: {set(m['category'] for m in all_metadatas)}")
     print(f"   Doc types: {set(m['doc_type'] for m in all_metadatas)}")
 
 
 if __name__ == "__main__":
-    ingest()
+    force = "--force" in sys.argv
+    ingest(force=force)
+
