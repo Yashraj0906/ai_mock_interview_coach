@@ -1,6 +1,6 @@
 # 🎯 AI Mock Interview Coach
 
-> **UpGrad Capstone Project** — A role-agnostic, multi-agent AI system that conducts adaptive mock interviews for any job role using LangGraph, RAG, and LLMs.
+> **UpGrad Internship Assessment** — A role-agnostic, multi-agent AI system that conducts adaptive mock interviews for any job role using LangGraph, RAG, and LLMs.
 
 ![Intake Form](screenshots/intake_form.png)
 
